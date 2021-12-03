@@ -10,6 +10,7 @@
 user=root
 skip-networking=0
 skip-name-resolve
+skip-grant-tables
 datadir=/var/lib/mysql
 port=3306
 log-bin=/var/lib/mysql/mysl-bin

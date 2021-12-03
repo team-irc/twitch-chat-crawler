@@ -15,9 +15,10 @@ services:
       context: ./db
       dockerfile: Dockerfile
     container_name: db
+    env_file: db.env
     volumes:
       - ./db/data:/var/lib/mysql
     ports:
       - 3306:3306
-    entrypoint: > 
-      sh -c "mysqld"
+    working_dir: /
+    command: mysqld

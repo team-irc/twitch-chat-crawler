@@ -1,0 +1,23 @@
+
+version: "3.3"
+services:
+  crawler:
+    build:
+      context: ./crawler
+      dockerfile: Dockerfile
+    container_name: crawler
+    working_dir: /crawler
+    entrypoint: >
+      sh -c "make
+      && ./twicyrc"
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: db
+    volumes:
+      - ./db/data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    entrypoint: > 
+      sh -c "mysqld"

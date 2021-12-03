@@ -1,0 +1,4 @@
+.vscode
+twicyrc
+*.o
+db/data/*

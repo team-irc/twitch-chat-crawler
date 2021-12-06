@@ -6,16 +6,16 @@ services:
       context: ./crawler
       dockerfile: Dockerfile
     container_name: crawler
+    volumes:
+      - ./crawler:/crawler
     working_dir: /crawler
     entrypoint: >
-      sh -c "make
-      && ./twicyrc"
+      sh -c "while true; do sleep 1; done;"
   db:
     build:
       context: ./db
       dockerfile: Dockerfile
     container_name: db
-    env_file: db.env
     volumes:
       - ./db/data:/var/lib/mysql
     ports:

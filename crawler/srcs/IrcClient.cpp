@@ -52,11 +52,71 @@ void	IrcClient::recv_from_server()
 	std::string buffer = _socket->recv_msg();
 	std::string line;
 	std::istringstream iss(buffer);
+	t_chat			chat;
 
 	while (std::getline(iss, line))
 	{
 		if (line.find("\r") != std::string::npos)
 			line = line.substr(0, line.size() - 1);
-		std::cout << line << std::endl;
+		chat = parse_chat(line);
+		std::cout << "#" << chat.channel << " @" << chat.id << " : " << chat.content << std::endl;
 	}
+}
+
+std::string		parse_id(const std::string &msg)
+{
+	size_t	idx;
+	
+	idx = msg.find_first_of('!', 0);
+	if (idx == std::string::npos)
+		throw (IrcError("parse_nick error | " + msg));
+	return (msg.substr(1, idx - 1));
+}
+
+std::string		parse_channel(const std::string &msg)
+{
+	size_t	idx;
+	size_t	idx_end;
+
+	idx = msg.find_first_of('#', 0);
+	if (idx == std::string::npos)
+		throw (IrcError("parse_channel error | " + msg));
+	idx_end = msg.find_first_of(' ', idx);
+	if (idx_end == std::string::npos)
+		throw (IrcError("parse_channel ' ' not found error | " + msg));
+	return (msg.substr(idx + 1, idx_end - (idx + 1)));
+}
+
+std::string		parse_content(const std::string &msg)
+{
+	size_t	idx;
+
+	idx = msg.find_first_of(':', 1);
+	if (idx == std::string::npos)
+		throw (IrcError("parse_content ':' not found error | " + msg));
+	return (msg.substr(idx + 1, msg.length() - (idx + 1)));
+}
+
+/*
+	@brief parse message to nick, content
+*/
+t_chat	IrcClient::parse_chat(const std::string &msg)
+{
+	t_chat	chat;
+
+	try
+	{
+		chat.id = parse_id(msg);
+		chat.channel = parse_channel(msg);
+		chat.content = parse_content(msg);
+	}
+	catch (IrcError const &e)
+	{
+		std::cerr << "[-] ";
+		std::cerr << e.what() << std::endl;
+		chat.id = "error";
+		chat.channel = "error";
+		chat.content = "error";
+	}
+	return (chat);
 }

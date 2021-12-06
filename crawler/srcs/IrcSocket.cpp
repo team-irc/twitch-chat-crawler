@@ -68,6 +68,8 @@ std::string		IrcSocket::recv_msg()
 	size = recv(_fd, buffer, MAX_DATA_SIZE - 1, 0);
 	if (size > 0)
 		return std::string(buffer);
-	else
-		throw (IrcError("recv error"));
+	else if (size == 0)
+		return std::string("recv return 0");
+	else // (size < 0)
+		throw (IrcError("recv error: " + std::to_string(size)));
 }

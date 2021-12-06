@@ -12,6 +12,13 @@
 #include "IrcError.hpp"
 #include "IrcSocket.hpp"
 
+typedef struct	s_chat 
+{
+	std::string		channel;
+	std::string		id;
+	std::string		content;
+}								t_chat;
+
 class IrcClient 
 {
 private:
@@ -23,7 +30,8 @@ public:
 	IrcClient(const IrcClient &ref);
 	IrcClient &operator=(const IrcClient &ref);
 	
-	void	send_to_server(const std::string &msg);
-	void	recv_from_server();
-	void	login_twitch();
+	void					send_to_server(const std::string &msg);
+	void					recv_from_server();
+	t_chat				parse_chat(const std::string &msg);
+	void					login_twitch();
 };

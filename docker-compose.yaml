@@ -21,4 +21,5 @@ services:
     ports:
       - 3306:3306
     working_dir: /
-    command: mysqld
+    entrypoint: >
+      sh -c "mysqld"

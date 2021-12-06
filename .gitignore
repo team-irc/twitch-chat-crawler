@@ -2,3 +2,5 @@
 twicyrc
 *.o
 db/data/*
+db.env
+db/srcs/init_db.sql

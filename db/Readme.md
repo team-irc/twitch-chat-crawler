@@ -14,6 +14,19 @@ $ docker build . -t db
 $ docker run -it db sh
 ```
 
+## 기본 SQL 명령
+```
+#Database 조회
+SHOW DATABASES;
+
+#DATABASE 선택
+USE testdb;
+
+#MYSQL유저 조회
+USE mysql;
+SELECT * FROM user;
+```
+
 ## 발생한 에러
 
 문제: mysqld 명령 실행 시 에러메세지 (Could not open mysql.plugin table: "Table 'mysql.plugin' doesn't exist". Some plugins may be not loaded)

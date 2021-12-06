@@ -35,11 +35,11 @@ int		main()
 		g_client->login_twitch();
 		announce();
 		std::thread	thread(input_thread);
+		thread.detach();
 		while (true)
 		{
 			g_client->recv_from_server();
 		}
-		thread.join();
 	}
 	catch (IrcError const &e)
 	{

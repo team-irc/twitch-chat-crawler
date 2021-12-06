@@ -6,11 +6,11 @@ _GREEN		=	\033[0;32m
 
 NAME = twicyrc
 
-CXX = clang++
+CXX = g++
 
-CXXFLAGS = -std=c++11 -I ${INC_DIR} -pthread
+CXXFLAGS = -std=c++11 -I ${INC_DIR} -pthread -I /usr/include/mysql -I /usr/include/cppconn -L/usr/lib -lmysqlcppconn -lmysqlclient 
 
-INC_DIR = ./includes
+INC_DIR = ./includes 
 
 SRCS = $(wildcard ./srcs/*.cpp)
 

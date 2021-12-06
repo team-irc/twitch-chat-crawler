@@ -6,6 +6,8 @@ services:
       context: ./crawler
       dockerfile: Dockerfile
     container_name: crawler
+    env_file:
+      - docker.env
     volumes:
       - ./crawler:/crawler
     working_dir: /crawler
@@ -21,5 +23,7 @@ services:
     ports:
       - 3306:3306
     working_dir: /
+    env_file:
+      - docker.env
     entrypoint: >
       sh -c "mysqld"

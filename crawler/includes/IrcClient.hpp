@@ -9,8 +9,14 @@
 #include <thread> // thread 사용
 #include <stdio.h> // getline 함수
 #include <sstream> // istringstream 타입
+#include <cstdlib> // getenv 함수
+#include <mysql.h> // mysql c++ connector
 #include "IrcError.hpp"
 #include "IrcSocket.hpp"
+#include "mysql_driver.h" // MySQL_Driver
+#include "mysql_connection.h" // Connection
+#include "mysql_error.h" 
+#include "cppconn/statement.h" // Statement
 
 typedef struct	s_chat 
 {
@@ -22,8 +28,8 @@ typedef struct	s_chat
 class IrcClient 
 {
 private:
-	IrcSocket		*_socket;
-
+	IrcSocket			*_socket;
+	
 public:
 	IrcClient();
 	virtual ~IrcClient();

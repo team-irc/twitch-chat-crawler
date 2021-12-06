@@ -1,6 +1,7 @@
 .vscode
+.DS_Store
 twicyrc
 *.o
 db/data/*
-db.env
+docker.env
 db/srcs/init_db.sql

@@ -1,17 +1,44 @@
 #include "IrcClient.hpp"
 #include "utils.hpp"
 
+
 /*
 	@brief connect to twitch server socket when construct client
 */
 IrcClient::IrcClient()
 {
+	const char	*DB_HOST = std::getenv("DB_HOST");
+	const char	*DB_USER = std::getenv("DB_USER");
+	const char	*DB_PASS = std::getenv("DB_PASSWORD");
+	const char	*DB_NAME = std::getenv("DB_NAME");
+	char	sql[1024];
+
 	_socket = new IrcSocket();
+
+	sql::mysql::MySQL_Driver *driver;
+	sql::Connection *con;
+	sql::Statement *stmt;
+
+	driver = sql::mysql::get_mysql_driver_instance();
+	con = driver->connect("db:3306", DB_USER, DB_PASSWORD);
+	
+	stmt = con->createStatement();
+	stmt->execute("CREATE DATABASE twchat IF NOT EXISTS;");
+	stmt->execute("USE twchat;");
+	
+	stmt->execute(sql);
+	// mysql_init(_connection);
+	// _conn = mysql_real_connect(_connection, DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, (char *)NULL, 0);
+	delete stmt;
+	delete con;
+	// if (mysql_query(_conn, sql) != 0)
+	// 	throw (IrcError("mysql query error"));
 	std::cout << "IRC Client Constructed." << std::endl;
 }
 
 IrcClient::~IrcClient()
 {
+	// mysql_close(_conn);
 	std::cout << "IRC Client Destructed." << std::endl;
 }
 
@@ -53,6 +80,7 @@ void	IrcClient::recv_from_server()
 	std::string line;
 	std::istringstream iss(buffer);
 	t_chat			chat;
+	char				sql[1024];
 
 	while (std::getline(iss, line))
 	{
@@ -60,6 +88,7 @@ void	IrcClient::recv_from_server()
 			line = line.substr(0, line.size() - 1);
 		chat = parse_chat(line);
 		std::cout << "#" << chat.channel << " @" << chat.id << " : " << chat.content << std::endl;
+		
 	}
 }
 

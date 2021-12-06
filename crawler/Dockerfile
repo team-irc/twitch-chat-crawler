@@ -1,10 +1,14 @@
-FROM frolvlad/alpine-glibc:alpine-3.13_glibc-2.33
+FROM ubuntu:18.04
 
-# makefile
-RUN apk add --no-cache make
-# include <iostream>
-RUN apk add --no-cache g++
-# clang++
-RUN apk add --no-cache clang
+RUN apt update
+RUN apt install make
+
+RUN apt install cmake
+
+RUN apt install g++
+
+RUN apt install libmysqlcppconn-dev
+
+RUN apt install libboost-all-dev
 
 WORKDIR /crawler

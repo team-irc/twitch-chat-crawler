@@ -12,7 +12,9 @@ services:
       - ./crawler:/crawler
     working_dir: /crawler
     entrypoint: >
-      sh -c "while true; do sleep 1; done;"
+      sh -c "./twicyrc"
+    depends_on:
+      - db
   db:
     build:
       context: ./db

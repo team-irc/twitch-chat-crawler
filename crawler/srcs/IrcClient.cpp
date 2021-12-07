@@ -46,7 +46,6 @@ void		IrcClient::init_db()
 									user_id VARCHAR(32) NOT NULL,\
 									content VARCHAR(256)\
 	);");
-	_stmt->execute("ALTER TABLE chatlog convert to charset utf8;");
 }
 /*
 	@brief connect to twitch server socket when construct client
@@ -133,8 +132,7 @@ void	IrcClient::recv_from_server()
 	{
 		if (line.find("\r") != std::string::npos)
 			line = line.substr(0, line.size() - 1);
-		chat = parse_chat(line);
-		// std::cout << "#" << chat.channel << " @" << chat.id << " : " << chat.content << std::endl;
+		parse_chat(line);
 	}
 }
 
@@ -190,17 +188,18 @@ t_chat	IrcClient::parse_chat(const std::string &msg)
 		chat.content = parse_content(msg);
 		sql = "INSERT INTO chatlog VALUES('" + chat.channel + "', default, '" + chat.id + "', '" + chat.content;
 		sql += "');";
-		std::cout << "sql: " << sql << std::endl;
+		// std::cout << "sql: " << sql << std::endl;
 		_stmt->execute(sql.c_str());
-		// std::cout << "sql excuted" << std::endl;
 	}
 	catch (IrcError const &e)
 	{
 		std::cerr << "[-] ";
 		std::cerr << e.what() << std::endl;
-		chat.id = "error";
-		chat.channel = "error";
-		chat.content = "error";
+	}
+	catch (sql::SQLException const &e)
+	{
+		std::cerr << "[-] ";
+		std::cerr << e.what() << std::endl;
 	}
 	return (chat);
 }

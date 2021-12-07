@@ -69,7 +69,7 @@ std::string		IrcSocket::recv_msg()
 	if (size > 0)
 		return std::string(buffer);
 	else if (size == 0)
-		return std::string("recv return 0");
+		throw (IrcError("recv return 0"));
 	else // (size < 0)
 		throw (IrcError("recv error: " + std::to_string(size)));
 }

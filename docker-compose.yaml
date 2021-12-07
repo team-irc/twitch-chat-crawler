@@ -12,7 +12,7 @@ services:
       - ./crawler:/crawler
     working_dir: /crawler
     entrypoint: >
-      sh -c "./twicyrc"
+      sh -c "make re && ./twicyrc"
     depends_on:
       - db
   db:

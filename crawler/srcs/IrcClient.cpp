@@ -46,6 +46,7 @@ void		IrcClient::init_db()
 									user_id VARCHAR(32) NOT NULL,\
 									content VARCHAR(256)\
 	);");
+	_stmt->execute("ALTER TABLE chatlog convert to charset utf8;");
 }
 /*
 	@brief connect to twitch server socket when construct client
@@ -73,17 +74,33 @@ IrcClient::~IrcClient()
 }
 
 /*
+	@brief 스트리머들 채텅 서버에 접속
+*/
+void	IrcClient::join_streamer_channels()
+{
+	std::cout << "joining streamer channels" << std::endl;
+	sql::ResultSet  *res;
+
+	res = _stmt->executeQuery("SELECT streamer_id FROM streamer;");
+	while (res->next())
+	{
+		// std::cout << "JOIN #" << res->getString("streamer_id") << std::endl;
+		send_to_server("JOIN #" + res->getString("streamer_id"));
+	}
+}
+
+/*
 	@brief 트위치 계정으로 채팅 서버에 로그인
 */
 void	IrcClient::login_twitch()
 {
+	std::cout << "login to twitch irc server..." << std::endl;
 	std::string	id;
 	std::string	code;
 
-	std::cout << "twitch id: ";
-	std::cin >> id;
-	std::cout << "twitch oauth code(https://twitchapps.com/tmi): ";
-	std::cin >> code;
+	id = std::getenv("TWITCH_ID");
+	code = std::getenv("TWITCH_PW");
+	
 	_socket->connect_to_twitch_irc_server();
 	code = "pass " + code;
 	id = "nick " + id;

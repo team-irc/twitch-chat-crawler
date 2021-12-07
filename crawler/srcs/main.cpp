@@ -33,7 +33,8 @@ int		main()
 	{
 		g_client = new IrcClient();
 		g_client->login_twitch();
-		announce();
+		g_client->join_streamer_channels();
+		// announce();
 		std::thread	thread(input_thread);
 		thread.detach();
 		while (true)

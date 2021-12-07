@@ -42,6 +42,7 @@ public:
 	void					recv_from_server();
 	t_chat				parse_chat(const std::string &msg);
 	void					login_twitch();
+	void					join_streamer_channels();
 
 	void					connect_db();
 	void					disconnect_db();

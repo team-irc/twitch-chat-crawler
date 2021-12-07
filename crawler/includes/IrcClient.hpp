@@ -28,7 +28,9 @@ typedef struct	s_chat
 class IrcClient 
 {
 private:
-	IrcSocket			*_socket;
+	IrcSocket				*_socket;
+	sql::Connection	*_con;
+	sql::Statement	*_stmt;
 	
 public:
 	IrcClient();
@@ -40,4 +42,8 @@ public:
 	void					recv_from_server();
 	t_chat				parse_chat(const std::string &msg);
 	void					login_twitch();
+
+	void					connect_db();
+	void					disconnect_db();
+	void					init_db();
 };

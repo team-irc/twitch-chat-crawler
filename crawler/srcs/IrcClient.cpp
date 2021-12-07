@@ -1,44 +1,74 @@
 #include "IrcClient.hpp"
 #include "utils.hpp"
 
+std::string replace_all(std::string str, const std::string& from, const std::string& to) {
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
+}
 
+std::string	replace_special_characters(std::string const &str)
+{
+	std::string		ret;
+
+	ret = replace_all(str, "\\", "\\\\"); // 백슬래시를 치환 하는 부분이 가장 먼저 이뤄져야한다.
+	ret = replace_all(ret, "'", "\\'");
+	ret = replace_all(ret, "\"", "\\\"");
+	return (ret);
+}
+
+void		IrcClient::connect_db()
+{
+	sql::mysql::MySQL_Driver *driver;
+	const char	*DB_HOST = std::getenv("DB_HOST");
+	const char	*DB_USER = std::getenv("DB_USER");
+	const char	*DB_PASS = std::getenv("DB_PASSWORD");
+	const char	*DB_NAME = std::getenv("DB_NAME");
+
+	driver = sql::mysql::get_mysql_driver_instance();
+	_con = driver->connect("db:3306", DB_USER, DB_PASS);
+	_stmt = _con->createStatement();
+}
+
+void		IrcClient::init_db()
+{
+	_stmt->execute("CREATE DATABASE IF NOT EXISTS twchat;");
+	_stmt->execute("USE twchat;");
+	_stmt->execute("CREATE TABLE IF NOT EXISTS streamer(\
+									id int NOT NULL auto_increment primary key,\
+									streamer_id VARCHAR(32) NOT NULL);");
+	_stmt->execute("CREATE TABLE IF NOT EXISTS chatlog(\
+									streamer_id VARCHAR(32) NOT NULL,\
+									date TIMESTAMP DEFAULT NOW(),\
+									user_id VARCHAR(32) NOT NULL,\
+									content VARCHAR(256)\
+	);");
+}
 /*
 	@brief connect to twitch server socket when construct client
 */
 IrcClient::IrcClient()
 {
-	const char	*DB_HOST = std::getenv("DB_HOST");
-	const char	*DB_USER = std::getenv("DB_USER");
-	const char	*DB_PASS = std::getenv("DB_PASSWORD");
-	const char	*DB_NAME = std::getenv("DB_NAME");
 	char	sql[1024];
 
 	_socket = new IrcSocket();
-
-	sql::mysql::MySQL_Driver *driver;
-	sql::Connection *con;
-	sql::Statement *stmt;
-
-	driver = sql::mysql::get_mysql_driver_instance();
-	con = driver->connect("db:3306", DB_USER, DB_PASSWORD);
-	
-	stmt = con->createStatement();
-	stmt->execute("CREATE DATABASE twchat IF NOT EXISTS;");
-	stmt->execute("USE twchat;");
-	
-	stmt->execute(sql);
-	// mysql_init(_connection);
-	// _conn = mysql_real_connect(_connection, DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, (char *)NULL, 0);
-	delete stmt;
-	delete con;
-	// if (mysql_query(_conn, sql) != 0)
-	// 	throw (IrcError("mysql query error"));
+	connect_db();
+	init_db();
 	std::cout << "IRC Client Constructed." << std::endl;
+}
+
+void		IrcClient::disconnect_db()
+{
+	delete _stmt;
+	delete _con;
 }
 
 IrcClient::~IrcClient()
 {
-	// mysql_close(_conn);
+	disconnect_db();
 	std::cout << "IRC Client Destructed." << std::endl;
 }
 
@@ -80,15 +110,14 @@ void	IrcClient::recv_from_server()
 	std::string line;
 	std::istringstream iss(buffer);
 	t_chat			chat;
-	char				sql[1024];
+	std::string	sql;
 
 	while (std::getline(iss, line))
 	{
 		if (line.find("\r") != std::string::npos)
 			line = line.substr(0, line.size() - 1);
 		chat = parse_chat(line);
-		std::cout << "#" << chat.channel << " @" << chat.id << " : " << chat.content << std::endl;
-		
+		// std::cout << "#" << chat.channel << " @" << chat.id << " : " << chat.content << std::endl;
 	}
 }
 
@@ -118,12 +147,15 @@ std::string		parse_channel(const std::string &msg)
 
 std::string		parse_content(const std::string &msg)
 {
+	std::string		ret;
 	size_t	idx;
 
 	idx = msg.find_first_of(':', 1);
 	if (idx == std::string::npos)
 		throw (IrcError("parse_content ':' not found error | " + msg));
-	return (msg.substr(idx + 1, msg.length() - (idx + 1)));
+	ret = msg.substr(idx + 1, msg.length() - (idx + 1));
+	ret = replace_special_characters(ret);
+	return (ret);
 }
 
 /*
@@ -131,6 +163,7 @@ std::string		parse_content(const std::string &msg)
 */
 t_chat	IrcClient::parse_chat(const std::string &msg)
 {
+	std::string sql;
 	t_chat	chat;
 
 	try
@@ -138,6 +171,11 @@ t_chat	IrcClient::parse_chat(const std::string &msg)
 		chat.id = parse_id(msg);
 		chat.channel = parse_channel(msg);
 		chat.content = parse_content(msg);
+		sql = "INSERT INTO chatlog VALUES('" + chat.channel + "', default, '" + chat.id + "', '" + chat.content;
+		sql += "');";
+		std::cout << "sql: " << sql << std::endl;
+		_stmt->execute(sql.c_str());
+		// std::cout << "sql excuted" << std::endl;
 	}
 	catch (IrcError const &e)
 	{

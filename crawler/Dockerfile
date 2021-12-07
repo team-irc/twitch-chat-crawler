@@ -1,14 +1,16 @@
 FROM ubuntu:18.04
 
-RUN apt update
-RUN apt install make
+RUN apt-get update
+RUN apt-get install -y make
 
-RUN apt install cmake
+RUN apt-get install -y cmake
 
-RUN apt install g++
+RUN apt-get install -y g++
 
-RUN apt install libmysqlcppconn-dev
+RUN apt-get install -y libmysqlcppconn-dev
 
-RUN apt install libboost-all-dev
+RUN apt-get install -y libboost-all-dev
+
+RUN apt-get install -y libmysqlclient-dev
 
 WORKDIR /crawler

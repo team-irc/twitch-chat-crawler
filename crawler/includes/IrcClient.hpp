@@ -40,7 +40,7 @@ public:
 	
 	void					send_to_server(const std::string &msg);
 	void					recv_from_server();
-	t_chat				parse_chat(const std::string &msg);
+	void					parse_chat(const std::string &msg);
 	void					login_twitch();
 	void					join_streamer_channels();
 

@@ -125,7 +125,6 @@ void	IrcClient::recv_from_server()
 	std::string buffer = _socket->recv_msg();
 	std::string line;
 	std::istringstream iss(buffer);
-	t_chat			chat;
 	std::string	sql;
 
 	while (std::getline(iss, line))
@@ -173,16 +172,31 @@ std::string		parse_content(const std::string &msg)
 	return (ret);
 }
 
+bool		is_ping_check(const std::string &msg)
+{
+	size_t	idx;
+
+	idx = msg.find("PING", 0);
+	if (idx == 0)
+		return true;
+	return false;
+}
+
 /*
 	@brief parse message to nick, content
 */
-t_chat	IrcClient::parse_chat(const std::string &msg)
+void	IrcClient::parse_chat(const std::string &msg)
 {
 	std::string sql;
 	t_chat	chat;
 
 	try
 	{
+		if (is_ping_check(msg))
+		{
+			send_to_server("PONG");
+			return ;
+		}
 		chat.id = parse_id(msg);
 		chat.channel = parse_channel(msg);
 		chat.content = parse_content(msg);
@@ -201,5 +215,4 @@ t_chat	IrcClient::parse_chat(const std::string &msg)
 		std::cerr << "[-] ";
 		std::cerr << e.what() << std::endl;
 	}
-	return (chat);
 }
